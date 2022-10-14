@@ -51,3 +51,6 @@ static/uploads/
 
 # HTTPS certificates
 /cert
+
+# vscode settings
+.vscode/
