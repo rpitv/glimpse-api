@@ -36,8 +36,6 @@ import { assertValidPassword, PASSWORD_HASH_OPTIONS } from "./utils";
 import { hash } from "argon2";
 import { RawRuleOf } from "@casl/ability";
 
-dotenv.config();
-
 /**
  * Check whether this server should run in HTTPS mode or not.
  * @returns true if HTTPS environment variable is set and isn't equal to "false", otherwise returns false.
