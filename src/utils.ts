@@ -8,8 +8,6 @@
  *   If a key is in the keys array but isn't in the source, it's ignored.
  */
 import { GraphQLYogaError } from "@graphql-yoga/node";
-import { AbilityActions, GlimpseAbility } from "custom";
-import { accessibleBy } from "@casl/prisma";
 import { argon2id } from "argon2";
 
 export function pick(source: { [key: string]: any }, keys: string[]) {
@@ -19,31 +17,6 @@ export function pick(source: { [key: string]: any }, keys: string[]) {
         }
         return result;
     }, {});
-}
-
-type Pagination<T = { id: number }> = {
-    skip?: number;
-    take?: number;
-    cursor?: T;
-};
-
-export function constructPagination(args: { [key: string]: any }): Pagination {
-    let pagination: Pagination = {};
-    if (args.pagination) {
-        if (args.pagination) {
-            if (args.pagination.skip) {
-                pagination.skip = args.pagination.skip;
-            }
-            if (args.pagination.take) {
-                pagination.take = args.pagination.take;
-            }
-            if (args.pagination.cursor) {
-                pagination.cursor = { id: parseInt(args.pagination.cursor) };
-            }
-        }
-    }
-
-    return pagination;
 }
 
 /**
@@ -68,22 +41,6 @@ export function assertValidPassword(password: string) {
             "Password must contain at least 5 unique characters"
         );
     }
-}
-
-/**
- * Wrapper around the CASL Prisma accessibleBy method which requires the action parameter. This should be used
- *   instead of the accessibleBy method directly to avoid accidentally not passing the action parameter.
- * @param ability Permission Ability to check.
- * @param action Action to check the ability for permission for. Must be a non-empty string, or an Error will be thrown.
- */
-export function getAccessibleByFilter(
-    ability: GlimpseAbility,
-    action: AbilityActions
-) {
-    if (!action) {
-        throw new Error("Action must be provided");
-    }
-    return accessibleBy(ability, action);
 }
 
 export const PASSWORD_HASH_OPTIONS = {
