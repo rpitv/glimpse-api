@@ -50,7 +50,7 @@
     "typedi": "^0.10.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.6.2",
+    "@graphql-codegen/cli": "2.16.5",
     "@graphql-codegen/typescript": "2.5.0",
     "@graphql-codegen/typescript-resolvers": "2.6.5",
     "@types/amqplib": "^0.8.2",
