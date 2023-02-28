@@ -537,16 +537,6 @@ export class CaslHelper {
                     visit(inputAst, {
                         ObjectField: {
                             enter: (node) => {
-                                // Only single-deep fields are allowed in input data at the moment. I.e., you cannot
-                                //  create relations in a single mutation.
-                                this.assertNodeKind(node.value, [
-                                    Kind.ENUM,
-                                    Kind.STRING,
-                                    Kind.INT,
-                                    Kind.BOOLEAN,
-                                    Kind.FLOAT,
-                                    Kind.NULL
-                                ]);
                                 inputFields.add(node.name.value);
                             }
                         }
@@ -555,11 +545,6 @@ export class CaslHelper {
                     this.logger.verbose("Input argument passed in as variable.");
                     const argName = inputArg.name.value;
                     for (const fieldName of Object.keys(info.variableValues[argName])) {
-                        // Only single-deep fields are allowed in input data at the moment. I.e., you cannot
-                        //  create relations in a single mutation.
-                        if (typeof info.variableValues[argName][fieldName] === "object") {
-                            throw new Error("Input data cannot contain nested objects.");
-                        }
                         inputFields.add(fieldName);
                     }
                 }

@@ -1,25 +1,23 @@
 import { InputType, registerEnumType } from "@nestjs/graphql";
 import { OrderDirection } from "../../../gql/order-direction.enum";
 
-enum RoleOrderableFields {
-    id = "id",
-    name = "name",
+enum ProductionVideoOrderableFields {
     priority = "priority"
 }
 
-registerEnumType(RoleOrderableFields, {
-    name: "RoleOrderableFields"
+registerEnumType(ProductionVideoOrderableFields, {
+    name: "ProductionVideoOrderableFields"
 });
 
 /**
- * Input type for ordering Roles in ReadMany queries.
+ * Input type for ordering Categories in ReadMany queries.
  */
 @InputType()
-export class OrderRoleInput {
+export class OrderProductionVideoInput {
     /**
      * Name of the field to sort by.
      */
-    field: RoleOrderableFields;
+    field: ProductionVideoOrderableFields;
     /**
      * Direction to order in. Required.
      */
