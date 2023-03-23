@@ -16,10 +16,13 @@ import { UpdateGroupPermissionInput } from "./dto/update-group_permission.input"
 import { Group } from "../group/group.entity";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import { UtilitiesService } from "../../utilities.service";
 
 @Resolver(() => GroupPermission)
 export class GroupPermissionResolver {
     private logger: Logger = new Logger("GroupPermissionResolver");
+
+    constructor(private readonly util: UtilitiesService) {}
 
     // -------------------- Generic Resolvers --------------------
 
@@ -79,6 +82,8 @@ export class GroupPermissionResolver {
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
+        input = this.util.sanitizePermissionInput(input);
+
         const result = await ctx.req.prismaTx.groupPermission.create({
             data: input
         });
@@ -107,6 +112,8 @@ export class GroupPermissionResolver {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
+
+        input = this.util.sanitizePermissionInput(input);
 
         const rowToUpdate = await ctx.req.prismaTx.groupPermission.findFirst({
             where: {

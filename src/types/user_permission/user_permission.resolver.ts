@@ -29,6 +29,7 @@ import { GroupPermission } from "../group_permission/group_permission.entity";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
 import { handlePermissionsForRule } from "../../casl/rule-handlers/permissionsFor";
+import { UtilitiesService } from "../../utilities.service";
 
 export const PermissionUnion = createUnionType({
     name: "Permission",
@@ -48,7 +49,7 @@ export const PermissionUnion = createUnionType({
 export class UserPermissionResolver {
     private logger: Logger = new Logger("UserPermissionResolver");
 
-    constructor(private readonly caslAbilityFactory: CaslAbilityFactory) {}
+    constructor(private readonly caslAbilityFactory: CaslAbilityFactory, private readonly util: UtilitiesService) {}
 
     // -------------------- Generic Resolvers --------------------
 
@@ -108,6 +109,8 @@ export class UserPermissionResolver {
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
+        input = this.util.sanitizePermissionInput(input);
+
         const result = await ctx.req.prismaTx.userPermission.create({
             data: input
         });
@@ -136,6 +139,8 @@ export class UserPermissionResolver {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
+
+        input = this.util.sanitizePermissionInput(input);
 
         const rowToUpdate = await ctx.req.prismaTx.userPermission.findFirst({
             where: {
