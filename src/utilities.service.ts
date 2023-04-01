@@ -52,11 +52,6 @@ export class UtilitiesService {
         if (input.conditions === null) {
             input.conditions = Prisma.DbNull as any;
         }
-        // We interpret an empty fields array as meaning permission to read any field. CASL does not do this, and
-        //  an empty fields array is in fact an error.
-        if (input.fields?.length === 0 || input.fields === null) {
-            input.fields = Prisma.DbNull as any;
-        }
 
         return input;
     }

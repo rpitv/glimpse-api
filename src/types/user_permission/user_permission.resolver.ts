@@ -111,9 +111,22 @@ export class UserPermissionResolver {
 
         input = this.util.sanitizePermissionInput(input);
 
+        // We interpret an empty fields array as meaning permission to read any field. CASL does not do this, and
+        //  an empty fields array is in fact an error. Annoyingly, Prisma does the opposite: a null array is an error.
+        //  We manually set the fields array to null using a raw query. See https://github.com/prisma/prisma/issues/14390
+        let setFieldsToNull = false;
+        if (input.fields?.length === 0 || input.fields === null) {
+            delete input.fields;
+            setFieldsToNull = true;
+        }
         const result = await ctx.req.prismaTx.userPermission.create({
             data: input
         });
+        if (setFieldsToNull) {
+            await ctx.req.prismaTx
+                .$queryRaw`UPDATE user_permissions SET fields = NULL WHERE id = ${result.id}`;
+            result.fields = null;
+        }
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
@@ -161,12 +174,25 @@ export class UserPermissionResolver {
             }
         }
 
+        // We interpret an empty fields array as meaning permission to read any field. CASL does not do this, and
+        //  an empty fields array is in fact an error. Annoyingly, Prisma does the opposite: a null array is an error.
+        //  We manually set the fields array to null using a raw query. See https://github.com/prisma/prisma/issues/14390
+        let setFieldsToNull = false;
+        if (input.fields?.length === 0 || input.fields === null) {
+            delete input.fields;
+            setFieldsToNull = true;
+        }
         const result = await ctx.req.prismaTx.userPermission.update({
             where: {
                 id
             },
             data: input
         });
+        if (setFieldsToNull) {
+           await ctx.req.prismaTx
+                .$queryRaw`UPDATE user_permissions SET fields = NULL WHERE id = ${result.id}`;
+            result.fields = null;
+        }
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
