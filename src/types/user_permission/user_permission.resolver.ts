@@ -123,8 +123,7 @@ export class UserPermissionResolver {
             data: input
         });
         if (setFieldsToNull) {
-            await ctx.req.prismaTx
-                .$queryRaw`UPDATE user_permissions SET fields = NULL WHERE id = ${result.id}`;
+            await ctx.req.prismaTx.$queryRaw`UPDATE user_permissions SET fields = NULL WHERE id = ${result.id}`;
             result.fields = null;
         }
 
@@ -189,8 +188,7 @@ export class UserPermissionResolver {
             data: input
         });
         if (setFieldsToNull) {
-           await ctx.req.prismaTx
-                .$queryRaw`UPDATE user_permissions SET fields = NULL WHERE id = ${result.id}`;
+            await ctx.req.prismaTx.$queryRaw`UPDATE user_permissions SET fields = NULL WHERE id = ${result.id}`;
             result.fields = null;
         }
 

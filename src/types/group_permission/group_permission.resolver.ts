@@ -96,8 +96,7 @@ export class GroupPermissionResolver {
             data: input
         });
         if (setFieldsToNull) {
-            await ctx.req.prismaTx
-                .$queryRaw`UPDATE group_permissions SET fields = NULL WHERE id = ${result.id}`;
+            await ctx.req.prismaTx.$queryRaw`UPDATE group_permissions SET fields = NULL WHERE id = ${result.id}`;
             result.fields = null;
         }
 
@@ -162,8 +161,7 @@ export class GroupPermissionResolver {
             data: input
         });
         if (setFieldsToNull) {
-            await ctx.req.prismaTx
-                .$queryRaw`UPDATE group_permissions SET fields = NULL WHERE id = ${result.id}`;
+            await ctx.req.prismaTx.$queryRaw`UPDATE group_permissions SET fields = NULL WHERE id = ${result.id}`;
             result.fields = null;
         }
 
