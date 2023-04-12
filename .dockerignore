@@ -22,5 +22,9 @@ prisma/migrations
 docker-compose.yml
 Dockerfile
 README.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+cli-demo.gif
 rpitv_glimpse_logo.png
 npm-debug.log
+cli.ts
