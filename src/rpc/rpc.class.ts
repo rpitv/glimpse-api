@@ -1,7 +1,6 @@
 import { ChannelWrapper } from "amqp-connection-manager";
 import { ConsumeMessage } from "amqplib";
-import { RPCRegistry } from "./rpc.registry";
-
+import { RPCResponse } from "./rpc.registry";
 export class RPC {
     private readonly method: string;
     private readonly params: Record<string, any>;
@@ -23,7 +22,7 @@ export class RPC {
         return this.params;
     }
 
-    public async reply(data: any, close = true): Promise<boolean> {
+    public async reply(data: RPCResponse, close = true): Promise<boolean> {
         const result = await this.channel.sendToQueue(
             this.message.properties.replyTo,
             Buffer.from(JSON.stringify(data)),
@@ -33,16 +32,6 @@ export class RPC {
         if (close) {
             await this.channel.close();
         }
-        return result;
-    }
-
-    public async handle(registry: RPCRegistry): Promise<any> {
-        const handler = registry.get(this.method);
-        if (!handler) {
-            throw new Error(`No handler registered for method ${this.method}`);
-        }
-        const result = await handler(this.params);
-        await this.reply(result);
         return result;
     }
 }

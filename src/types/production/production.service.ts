@@ -21,7 +21,7 @@ export class ProductionService {
     public async findManyProduction(
         prisma: PrismaTransaction,
         options?: {
-            pagination: PaginationInput;
+            pagination?: PaginationInput;
             filter?: FilterProductionInput;
             order?: OrderProductionInput[];
         },
