@@ -13,9 +13,9 @@ import { ConsumeMessage } from "amqplib";
 import { GraphQLUUID } from "graphql-scalars";
 import { ConfigService } from "@nestjs/config";
 import { Rule, RuleType } from "../../casl/rule.decorator";
-import {AMQPQueues} from "../../amqp/queues.enum";
-import {AMQPService} from "../../amqp/amqp.service";
-import {ChannelWrapper} from "amqp-connection-manager";
+import { AMQPQueues } from "../../amqp/queues.enum";
+import { AMQPService } from "../../amqp/amqp.service";
+import { ChannelWrapper } from "amqp-connection-manager";
 
 @Resolver(() => Stream)
 export class StreamResolver {
@@ -26,31 +26,33 @@ export class StreamResolver {
     private amqpChannel: ChannelWrapper;
 
     constructor(private readonly configService: ConfigService, private readonly amqp: AMQPService) {
-        this.amqpChannel = this.amqp.createChannel()
+        this.amqpChannel = this.amqp.createChannel();
 
-        this.amqpChannel.consume(AMQPQueues.TRANSIENT, async (rmqMessage: ConsumeMessage | null) => {
-            this.logger.verbose("Received message from RabbitMQ");
-            if (!rmqMessage) {
-                return; // TODO throw error
-            }
-
-            const message = JSON.parse(rmqMessage.content.toString());
-
-            if (message.id) {
-                const streamIndex = this.streams.findIndex((stream) => stream.id === message.id);
-                if (streamIndex !== -1) {
-                    this.logger.verbose(`Updating stream ${message.id}`);
-                    this.streams[streamIndex] = message;
-                } else {
-                    this.logger.verbose(`Adding stream ${message.id}`);
-                    this.streams.push(message);
-                    this.streams.sort((a, b) => a.id.localeCompare(b.id));
+        this.amqpChannel
+            .consume(AMQPQueues.TRANSIENT, async (rmqMessage: ConsumeMessage | null) => {
+                this.logger.verbose("Received message from RabbitMQ");
+                if (!rmqMessage) {
+                    return; // TODO throw error
                 }
-                this.streamLastSeen[message.id] = Date.now();
-            }
-        }).catch((err) => {
-            this.logger.error(err);
-        });
+
+                const message = JSON.parse(rmqMessage.content.toString());
+
+                if (message.id) {
+                    const streamIndex = this.streams.findIndex((stream) => stream.id === message.id);
+                    if (streamIndex !== -1) {
+                        this.logger.verbose(`Updating stream ${message.id}`);
+                        this.streams[streamIndex] = message;
+                    } else {
+                        this.logger.verbose(`Adding stream ${message.id}`);
+                        this.streams.push(message);
+                        this.streams.sort((a, b) => a.id.localeCompare(b.id));
+                    }
+                    this.streamLastSeen[message.id] = Date.now();
+                }
+            })
+            .catch((err) => {
+                this.logger.error(err);
+            });
 
         // Periodically clear dead streams from list of streams
         setInterval(() => {

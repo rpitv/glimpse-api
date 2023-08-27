@@ -1,6 +1,6 @@
-import {ChannelWrapper} from "amqp-connection-manager";
-import {ConsumeMessage} from "amqplib";
-import {RPCRegistry} from "./rpc.registry";
+import { ChannelWrapper } from "amqp-connection-manager";
+import { ConsumeMessage } from "amqplib";
+import { RPCRegistry } from "./rpc.registry";
 
 export class RPC {
     private readonly method: string;
@@ -27,10 +27,10 @@ export class RPC {
         const result = await this.channel.sendToQueue(
             this.message.properties.replyTo,
             Buffer.from(JSON.stringify(data)),
-            {correlationId: this.message.properties.correlationId,}
+            { correlationId: this.message.properties.correlationId }
         );
         this.channel.ack(this.message);
-        if(close) {
+        if (close) {
             await this.channel.close();
         }
         return result;
@@ -38,7 +38,7 @@ export class RPC {
 
     public async handle(registry: RPCRegistry): Promise<any> {
         const handler = registry.get(this.method);
-        if(!handler) {
+        if (!handler) {
             throw new Error(`No handler registered for method ${this.method}`);
         }
         const result = await handler(this.params);
