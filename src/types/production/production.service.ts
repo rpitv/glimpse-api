@@ -26,7 +26,7 @@ export class ProductionService {
             order?: OrderProductionInput[];
         },
         ctx?: { req: Request }
-    ) {
+    ): Promise<Production[]> {
         // The "WHERE" filter is a combination of the provided filter and the user's permissions, depending on what is
         //  provided.
         const filters: Prisma.ProductionWhereInput[] = [];
@@ -40,7 +40,7 @@ export class ProductionService {
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = options?.order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
-        return ctx.req.prismaTx.production.findMany({
+        return prisma.production.findMany({
             where: { AND: filters },
             orderBy,
             skip: options?.pagination?.skip,
@@ -54,7 +54,7 @@ export class ProductionService {
         // We should check permissions only if a CASL Ability object is set within the request context.
         const shouldCheckPerms = !!ctx?.req?.permissions;
         const permsFilter = shouldCheckPerms ? [accessibleBy(ctx.req.permissions).Production] : [];
-        return ctx.req.prismaTx.production.findFirst({
+        return prisma.production.findFirst({
             where: {
                 AND: [{ id }, ...permsFilter]
             }
