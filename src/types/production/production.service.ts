@@ -18,6 +18,29 @@ import { OrderProductionInput } from "./dto/order-production.input";
 export class ProductionService {
     private logger: Logger = new Logger("ProductionService");
 
+    /**
+     * Convert unix timestamps to DateTime objects on an object input. Recursive for "AND" and "OR".
+     * @param obj Object to convert the timestamps on
+     * @param fields Fields which should be converted to dateTime if they are found on the object
+     * @private
+     */
+    private parseDateTimeInputs(obj: any, fields: string[]) {
+        if(!obj) {
+            return;
+        }
+        for(const prop in obj) {
+            if(['AND', 'OR'].includes(prop)) {
+                // Recurse
+                this.parseDateTimeInputs(obj[prop], fields);
+            }
+            for(const field of fields) {
+                if(prop === field) {
+                    obj[prop] = new Date(obj[prop]);
+                }
+            }
+        }
+    }
+
     public async findManyProduction(
         prisma: PrismaTransaction,
         options?: {
@@ -36,6 +59,10 @@ export class ProductionService {
         if (ctx?.req?.permissions) {
             filters.push(accessibleBy(ctx.req.permissions).Production);
         }
+
+        this.parseDateTimeInputs(options?.filter?.closetTime, ["equals", "gt", "gte", "lt", "lte", "not"]);
+        this.parseDateTimeInputs(options?.filter?.startTime, ["equals", "gt", "gte", "lt", "lte", "not"]);
+        this.parseDateTimeInputs(options?.filter?.endTime, ["equals", "gt", "gte", "lt", "lte", "not"]);
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = options?.order?.map((o) => ({ [o.field]: o.direction })) || undefined;
@@ -66,7 +93,8 @@ export class ProductionService {
         prisma: PrismaTransaction,
         ctx?: { req: Request }
     ): Promise<Production> {
-        this.logger.verbose("Creating Production...");
+        this.logger.debug("Creating Production. Data: " + JSON.stringify(data));
+        this.parseDateTimeInputs(data, ["closetTime", "startTime", "endTime"]);
         data = plainToClass(CreateProductionInput, data);
         const errors = await validate(data, { skipMissingProperties: true });
         if (errors.length > 0) {
@@ -93,6 +121,7 @@ export class ProductionService {
         ctx?: { req: Request }
     ): Promise<Production> {
         this.logger.verbose("Received request to update production.");
+        this.parseDateTimeInputs(data, ["closetTime", "startTime", "endTime"]);
         data = plainToClass(UpdateProductionInput, data);
         const errors = await validate(data, { skipMissingProperties: true });
         if (errors.length > 0) {
@@ -184,6 +213,11 @@ export class ProductionService {
         ctx?: { req: Request }
     ): Promise<number> {
         this.logger.verbose("Received request to count productions.");
+
+        this.parseDateTimeInputs(options?.filter?.closetTime, ["equals", "gt", "gte", "lt", "lte", "not"]);
+        this.parseDateTimeInputs(options?.filter?.startTime, ["equals", "gt", "gte", "lt", "lte", "not"]);
+        this.parseDateTimeInputs(options?.filter?.endTime, ["equals", "gt", "gte", "lt", "lte", "not"]);
+
         // We should check permissions only if a CASL Ability object is set within the request context.
         const shouldCheckPerms = !!ctx?.req?.permissions;
         const permsFilter = shouldCheckPerms ? [accessibleBy(ctx.req.permissions).Production] : [];

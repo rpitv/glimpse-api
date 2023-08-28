@@ -6,7 +6,7 @@ import {
     IsNumberString,
     IsOptional,
     IsString,
-    Length,
+    Length, MaxLength,
     MinLength
 } from "class-validator";
 import { User as PrismaUser } from "@prisma/client";
@@ -57,7 +57,7 @@ export class User implements PrismaUser {
      * Discord account ID for this user, or null if the user does not have a linked Discord account.
      */
     @IsNumberString()
-    @Length(18, 18)
+    @MaxLength(21)
     @IsOptional()
     @Field(() => String, { nullable: true })
     discord: string | null;
