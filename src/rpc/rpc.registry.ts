@@ -6,6 +6,7 @@ import { AMQPService } from "../amqp/amqp.service";
 import { ProductionService } from "../types/production/production.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../types/user/user.service";
+import {ProductionRSVPService} from "../types/production_rsvp/production_rsvp.service";
 
 export type RPCResponse = { error: any } | { data: any };
 export type RPCHandler = (params: Record<string, any>) => Promise<RPCResponse>;
@@ -20,6 +21,7 @@ export class RPCRegistry implements OnModuleInit {
         private readonly amqpService: AMQPService,
         private readonly productionService: ProductionService,
         private readonly userService: UserService,
+        private readonly productionRSVPService: ProductionRSVPService,
         private readonly prismaService: PrismaService
     ) {}
 
@@ -134,6 +136,121 @@ export class RPCRegistry implements OnModuleInit {
                         });
                     } catch (e) {
                         this.logger.warn("Database error in productionCount handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+
+
+        // ---------------------- ProductionRSVP ----------------------
+        this.register("findManyProductionRSVP", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    try {
+                        resolve({
+                            data: await this.productionRSVPService.findManyProductionRSVP(tx, {
+                                filter: options.filter,
+                                order: options.order,
+                                pagination: options.pagination
+                            })
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in findManyProductionRSVP handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("findOneProductionRSVP", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    let id: bigint;
+                    try {
+                        id = BigInt(options.id);
+                    } catch (e) {
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
+                    }
+                    try {
+                        resolve({
+                            data: await this.productionRSVPService.findOneProductionRSVP(id, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in findOneProductionRSVP handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("createProductionRSVP", (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    try {
+                        resolve({
+                            data: await this.productionRSVPService.createProductionRSVP(options.data, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in createProductionRSVP handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("updateProductionRSVP", (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    let id: bigint;
+                    try {
+                        id = BigInt(options.id);
+                    } catch (e) {
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
+                    }
+                    try {
+                        resolve({
+                            data: await this.productionRSVPService.updateProductionRSVP(id, options.data, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in updateProductionRSVP handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("deleteProductionRSVP", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    let id: bigint;
+                    try {
+                        id = BigInt(options.id);
+                    } catch (e) {
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
+                    }
+                    try {
+                        resolve({
+                            data: await this.productionRSVPService.deleteProductionRSVP(id, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in deleteProductionRSVP handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("productionRSVPCount", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    try {
+                        resolve({
+                            data: await this.productionRSVPService.productionRSVPCount(tx, { filter: options.filter })
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in productionRSVPCount handler: " + e);
                         resolve({ error: "Database error" });
                     }
                 });

@@ -96,6 +96,7 @@ export class ProductionResolver {
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionInput, nullable: true }) filter?: FilterProductionInput
     ): Promise<number> {
+        this.logger.verbose("productionCount resolver called");
         return this.productionService.productionCount(ctx.req.prismaTx, { filter }, ctx);
     }
 
