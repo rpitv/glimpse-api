@@ -1,24 +1,7 @@
 import { INestApplication, Injectable, OnModuleInit } from "@nestjs/common";
 import { Prisma, PrismaClient, UnwrapTuple } from "@prisma/client";
 import { AuditLog } from "../types/audit_log/audit_log.entity";
-import { AbilitySubjects } from "../casl/casl-ability.factory";
-import { User } from "../types/user/user.entity";
-
-export type AuditLogEntry = {
-    displayText?: string;
-    user?: User;
-    subject?: Extract<AbilitySubjects, string>;
-    id?: bigint;
-    newValue?: any;
-    oldValue?: any;
-};
-
-interface AuditLogGenerator {
-    genAuditLog(entries: AuditLogEntry[]): Promise<AuditLog[]>;
-
-    genAuditLog(entry: AuditLogEntry): Promise<AuditLog>;
-}
-
+import { AuditLogEntry, AuditLogGenerator } from "./auditlog.generator";
 class BasePrismaService extends PrismaClient implements OnModuleInit {
     constructor() {
         super();
@@ -35,36 +18,9 @@ class BasePrismaService extends PrismaClient implements OnModuleInit {
     }
 }
 
-/**
- * General purpose audit log generator function. This function should not be called directly. It must first be bound
- *  to the context of a Prisma transaction client. It's used both in {@link PrismaService#$transaction} and
- *  {@link PrismaService#genAuditLog}.
- *
- *  This could be done in a Prisma extension if this issue is resolved: https://github.com/prisma/prisma/issues/17948
- * @param entry Audit log entry/entries
- */
-async function genAuditLog(entry: AuditLogEntry[] | AuditLogEntry): Promise<AuditLog[] | AuditLog> {
-    if (Array.isArray(entry)) {
-        return Promise.all(entry.map((entry) => this.genAuditLog(entry)));
-    }
-
-    return await this.auditLog.create({
-        data: {
-            message: entry.displayText,
-            userId: entry.user?.id,
-            subject: entry.subject,
-            identifier: entry.id,
-            oldValue: entry.oldValue,
-            newValue: entry.newValue
-        }
-    });
-}
-
 @Injectable()
-export class PrismaService extends BasePrismaService implements AuditLogGenerator {
-    constructor() {
-        super();
-    }
+export class PrismaService extends BasePrismaService {
+    private auditLogGenerator = new AuditLogGenerator();
 
     // Override $transaction so that interactive transactions will expect an ExtendedTransactionClient.
     override $transaction<P extends Prisma.PrismaPromise<any>[]>(
@@ -85,7 +41,7 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
             const [fn, options] = args;
             return super.$transaction(async (tx) => {
                 // Any necessary extension assignments can go here...
-                tx.genAuditLog = genAuditLog.bind(tx);
+                tx.genAuditLog = this.genAuditLog.bind(tx);
 
                 return await fn(tx);
             }, options);
@@ -97,6 +53,12 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
     genAuditLog(entries: AuditLogEntry[]): Promise<AuditLog[]>;
     genAuditLog(entry: AuditLogEntry): Promise<AuditLog>;
     async genAuditLog(entry: AuditLogEntry[] | AuditLogEntry): Promise<AuditLog[] | AuditLog> {
-        return genAuditLog.bind(this)(entry);
+        // if(Array.isArray(entry)) {
+        //     return await this.auditLogGenerator.genAuditLog(this, entry);
+        // } else {
+        //     return await this.auditLogGenerator.genAuditLog(this, entry);
+        // }
+        // Not sure why the cast is necessary. The code above does the same thing but with no casts.
+        return await this.auditLogGenerator.genAuditLog(this, <AuditLogEntry>entry);
     }
 }

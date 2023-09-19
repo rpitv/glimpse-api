@@ -6,7 +6,8 @@ import {
     IsNumberString,
     IsOptional,
     IsString,
-    Length, MaxLength,
+    Length,
+    MaxLength,
     MinLength
 } from "class-validator";
 import { User as PrismaUser } from "@prisma/client";

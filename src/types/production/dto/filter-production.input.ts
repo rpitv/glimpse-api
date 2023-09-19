@@ -2,7 +2,7 @@ import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../../gql/string-comparison.input";
 import { NumberComparisonInput } from "../../../gql/number-comparison.input";
 import { DateComparisonInput } from "../../../gql/date-comparison.input";
-import {BooleanComparisonInput} from "../../../gql/boolean-comparison.input";
+import { BooleanComparisonInput } from "../../../gql/boolean-comparison.input";
 
 /**
  * Input type for filtering Productions in ReadMany queries.

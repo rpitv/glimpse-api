@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import {IsBoolean, IsDate, MaxLength} from "class-validator";
+import { IsBoolean, IsDate, MaxLength } from "class-validator";
 import { Production as PrismaProduction } from "@prisma/client";
 import { GraphQLBigInt } from "graphql-scalars";
 import { BigIntMin } from "../../custom-validators";

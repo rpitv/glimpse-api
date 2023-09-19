@@ -5,6 +5,7 @@ import { RPC } from "./rpc.class";
 import { AMQPService } from "../amqp/amqp.service";
 import { ProductionService } from "../types/production/production.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserService } from "../types/user/user.service";
 
 export type RPCResponse = { error: any } | { data: any };
 export type RPCHandler = (params: Record<string, any>) => Promise<RPCResponse>;
@@ -18,14 +19,17 @@ export class RPCRegistry implements OnModuleInit {
     constructor(
         private readonly amqpService: AMQPService,
         private readonly productionService: ProductionService,
+        private readonly userService: UserService,
         private readonly prismaService: PrismaService
     ) {}
 
     async onModuleInit() {
         await this.start();
+
+        // ---------------------- Production ----------------------
         this.register("findManyProduction", async (options) => {
             return new Promise((resolve) => {
-                this.prismaService.$transaction(async (tx)=> {
+                this.prismaService.$transaction(async (tx) => {
                     try {
                         resolve({
                             data: await this.productionService.findManyProduction(tx, {
@@ -36,19 +40,21 @@ export class RPCRegistry implements OnModuleInit {
                         });
                     } catch (e) {
                         this.logger.warn("Database error in findManyProduction handler: " + e);
-                        resolve({ error: "Database error" })
+                        resolve({ error: "Database error" });
                     }
-                })
-            })
+                });
+            });
         });
         this.register("findOneProduction", async (options) => {
             return new Promise((resolve) => {
-                this.prismaService.$transaction(async (tx)=> {
+                this.prismaService.$transaction(async (tx) => {
                     let id: bigint;
                     try {
                         id = BigInt(options.id);
                     } catch (e) {
-                        resolve({ error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt." })
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
                     }
                     try {
                         resolve({
@@ -56,33 +62,35 @@ export class RPCRegistry implements OnModuleInit {
                         });
                     } catch (e) {
                         this.logger.warn("Database error in findOneProduction handler: " + e);
-                        resolve({ error: "Database error" })
+                        resolve({ error: "Database error" });
                     }
-                })
-            })
+                });
+            });
         });
         this.register("createProduction", (options) => {
             return new Promise((resolve) => {
-                this.prismaService.$transaction(async (tx)=> {
+                this.prismaService.$transaction(async (tx) => {
                     try {
                         resolve({
                             data: await this.productionService.createProduction(options.data, tx)
                         });
                     } catch (e) {
                         this.logger.warn("Database error in createProduction handler: " + e);
-                        resolve({ error: "Database error" })
+                        resolve({ error: "Database error" });
                     }
-                })
-            })
+                });
+            });
         });
         this.register("updateProduction", (options) => {
             return new Promise((resolve) => {
-                this.prismaService.$transaction(async (tx)=> {
+                this.prismaService.$transaction(async (tx) => {
                     let id: bigint;
                     try {
                         id = BigInt(options.id);
                     } catch (e) {
-                        resolve({ error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt." })
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
                     }
                     try {
                         resolve({
@@ -90,19 +98,21 @@ export class RPCRegistry implements OnModuleInit {
                         });
                     } catch (e) {
                         this.logger.warn("Database error in updateProduction handler: " + e);
-                        resolve({ error: "Database error" })
+                        resolve({ error: "Database error" });
                     }
-                })
-            })
+                });
+            });
         });
         this.register("deleteProduction", async (options) => {
             return new Promise((resolve) => {
-                this.prismaService.$transaction(async (tx)=> {
+                this.prismaService.$transaction(async (tx) => {
                     let id: bigint;
                     try {
                         id = BigInt(options.id);
                     } catch (e) {
-                        resolve({ error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt." })
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
                     }
                     try {
                         resolve({
@@ -110,24 +120,138 @@ export class RPCRegistry implements OnModuleInit {
                         });
                     } catch (e) {
                         this.logger.warn("Database error in deleteProduction handler: " + e);
-                        resolve({ error: "Database error" })
+                        resolve({ error: "Database error" });
                     }
-                })
-            })
+                });
+            });
         });
         this.register("productionCount", async (options) => {
             return new Promise((resolve) => {
-                this.prismaService.$transaction(async (tx)=> {
+                this.prismaService.$transaction(async (tx) => {
                     try {
                         resolve({
                             data: await this.productionService.productionCount(tx, { filter: options.filter })
                         });
                     } catch (e) {
                         this.logger.warn("Database error in productionCount handler: " + e);
-                        resolve({ error: "Database error" })
+                        resolve({ error: "Database error" });
                     }
-                })
-            })
+                });
+            });
+        });
+
+        // ---------------------- User ----------------------
+        this.register("findManyUser", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    try {
+                        resolve({
+                            data: await this.userService.findManyUser(tx, {
+                                filter: options.filter,
+                                order: options.order,
+                                pagination: options.pagination
+                            })
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in findManyUser handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("findOneUser", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    let id: bigint;
+                    try {
+                        id = BigInt(options.id);
+                    } catch (e) {
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
+                    }
+                    try {
+                        resolve({
+                            data: await this.userService.findOneUser(id, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in findOneUser handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("createUser", (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    try {
+                        resolve({
+                            data: await this.userService.createUser(options.data, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in createUser handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("updateUser", (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    let id: bigint;
+                    try {
+                        id = BigInt(options.id);
+                    } catch (e) {
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
+                    }
+                    try {
+                        resolve({
+                            data: await this.userService.updateUser(id, options.data, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in updateUser handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("deleteUser", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    let id: bigint;
+                    try {
+                        id = BigInt(options.id);
+                    } catch (e) {
+                        resolve({
+                            error: "Invalid id parameter. Must be a valid value that can be parsed into a BigInt."
+                        });
+                    }
+                    try {
+                        resolve({
+                            data: await this.userService.deleteUser(id, tx)
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in deleteUser handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
+        });
+        this.register("userCount", async (options) => {
+            return new Promise((resolve) => {
+                this.prismaService.$transaction(async (tx) => {
+                    try {
+                        resolve({
+                            data: await this.userService.userCount(tx, { filter: options.filter })
+                        });
+                    } catch (e) {
+                        this.logger.warn("Database error in userCount handler: " + e);
+                        resolve({ error: "Database error" });
+                    }
+                });
+            });
         });
     }
 
