@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
-import {Prisma, ProductionRSVP} from "@prisma/client";
+import { Prisma, ProductionRSVP } from "@prisma/client";
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import { PrismaTransaction } from "../../../@types/express";
@@ -10,9 +10,9 @@ import { Request } from "express";
 import PaginationInput from "../../gql/pagination.input";
 import { parseDateTimeInputs } from "src/util";
 import { FilterProductionRSVPInput } from "./dto/filter-production_rsvp.input";
-import {OrderProductionRSVPInput} from "./dto/order-production_rsvp.input";
-import {CreateProductionRSVPInput} from "./dto/create-production_rsvp.input";
-import {UpdateProductionRSVPInput} from "./dto/update-production_rsvp.input";
+import { OrderProductionRSVPInput } from "./dto/order-production_rsvp.input";
+import { CreateProductionRSVPInput } from "./dto/create-production_rsvp.input";
+import { UpdateProductionRSVPInput } from "./dto/update-production_rsvp.input";
 
 @Injectable()
 export class ProductionRSVPService {
@@ -53,7 +53,11 @@ export class ProductionRSVPService {
         });
     }
 
-    public async findOneProductionRSVP(id: bigint, prisma: PrismaTransaction, ctx?: { req: Request }): Promise<ProductionRSVP> {
+    public async findOneProductionRSVP(
+        id: bigint,
+        prisma: PrismaTransaction,
+        ctx?: { req: Request }
+    ): Promise<ProductionRSVP> {
         this.logger.debug("Received request to find ProductionRSVP with ID " + id + ".");
 
         const filters: Prisma.ProductionRSVPWhereInput[] = [{ id }];
@@ -159,7 +163,11 @@ export class ProductionRSVPService {
         return result;
     }
 
-    public async deleteProductionRSVP(id: bigint, prisma: PrismaTransaction, ctx?: { req: Request }): Promise<ProductionRSVP> {
+    public async deleteProductionRSVP(
+        id: bigint,
+        prisma: PrismaTransaction,
+        ctx?: { req: Request }
+    ): Promise<ProductionRSVP> {
         this.logger.verbose("Received request to delete productionRSVP with ID " + id + ".");
 
         const filters: Prisma.ProductionRSVPWhereInput[] = [{ id }];

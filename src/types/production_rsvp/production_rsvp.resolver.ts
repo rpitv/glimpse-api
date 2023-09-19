@@ -12,7 +12,7 @@ import { Production } from "../production/production.entity";
 import { User } from "../user/user.entity";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
-import {ProductionRSVPService} from "./production_rsvp.service";
+import { ProductionRSVPService } from "./production_rsvp.service";
 
 @Resolver(() => ProductionRSVP)
 export class ProductionRSVPResolver {

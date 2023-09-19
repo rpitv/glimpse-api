@@ -6,7 +6,7 @@ import { AMQPService } from "../amqp/amqp.service";
 import { ProductionService } from "../types/production/production.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../types/user/user.service";
-import {ProductionRSVPService} from "../types/production_rsvp/production_rsvp.service";
+import { ProductionRSVPService } from "../types/production_rsvp/production_rsvp.service";
 
 export type RPCResponse = { error: any } | { data: any };
 export type RPCHandler = (params: Record<string, any>) => Promise<RPCResponse>;
@@ -141,7 +141,6 @@ export class RPCRegistry implements OnModuleInit {
                 });
             });
         });
-
 
         // ---------------------- ProductionRSVP ----------------------
         this.register("findManyProductionRSVP", async (options) => {
