@@ -1,3 +1,7 @@
+# Notice: This project has been relocated to the [rpitv/glimpse](https://github.com/rpitv/glimpse) monorepo
+
+---
+
 <!--suppress HtmlDeprecatedAttribute -->
 <img src="./rpitv_glimpse_logo.png" width="125" alt="Logo of the project" align="right">
 
